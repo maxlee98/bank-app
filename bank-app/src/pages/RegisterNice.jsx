@@ -37,6 +37,7 @@ export default function RegisterNice() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    console.log([...data]); // to see all the fields
     console.log({
       email: data.get("email"),
       password: data.get("password"),

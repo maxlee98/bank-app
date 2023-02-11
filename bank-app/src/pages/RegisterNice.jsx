@@ -8,6 +8,10 @@ import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
@@ -39,9 +43,45 @@ export default function RegisterNice() {
     const data = new FormData(event.currentTarget);
     console.log([...data]); // to see all the fields
     console.log({
+      firstName: data.get("firstName"),
+      lastName: data.get("lastName"),
       email: data.get("email"),
       password: data.get("password"),
+      bankAccountType: data.get("bank-account-type"),
     });
+
+    // Sending Data to the server
+    fetch("http://localhost:4000/register-account", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName: data.get("firstName"),
+        lastName: data.get("lastName"),
+        email: data.get("email"),
+        password: data.get("password"),
+        bankAccountType: data.get("bank-account-type"),
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(
+          "Data was successfully sent to server and processed:",
+          data
+        );
+      })
+      .catch((error) => {
+        console.error(
+          "There was a problem sending the data to the server:",
+          error
+        );
+      });
   };
 
   return (
@@ -121,6 +161,24 @@ export default function RegisterNice() {
                   id="password"
                   autoComplete="new-password"
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel id="bank-account-type-label">
+                    Account Type
+                  </InputLabel>
+                  <Select
+                    labelId="bank-account-type-label"
+                    id="bank-account-type"
+                    name="bank-account-type"
+                    required
+                  >
+                    <MenuItem value="debit">Debit</MenuItem>
+                    <MenuItem value="credit">Credit</MenuItem>
+                    <MenuItem value="savings">Savings</MenuItem>
+                    <MenuItem value="checking">Checking</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel

@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
+import Home from "./pages/Home";
 import LandingPage from "./pages/Landing";
 
 import LoginPage from "./pages/Login";
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/login-nice" element={<LoginNice />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/register-nice" element={<RegisterNice />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -34,6 +35,7 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function LoginNice() {
+  const navigate = useNavigate();
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -41,6 +43,8 @@ export default function LoginNice() {
       email: data.get("email"),
       password: data.get("password"),
     });
+
+    navigate("/home");
   };
 
   return (

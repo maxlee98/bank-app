@@ -7,14 +7,13 @@ var con = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "Password2@",
+  database: "bank-app-schema",
 });
 
 con.connect(function (err) {
   if (err) throw err;
   console.log("Connected!");
 });
-
-con.end();
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -26,6 +25,29 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
+});
+
+app.post("/register-account", (req, res) => {
+  const data = req.body;
+  const sql = `INSERT INTO users (firstName, lastName, email, password, bankAccountType)
+               VALUES (?, ?, ?, ?, ?)`;
+  const values = [
+    data.firstName,
+    data.lastName,
+    data.email,
+    data.password,
+    data.bankAccountType,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send({ message: "Failed to register account" });
+      return;
+    }
+    console.log("Data was successfully written to the database");
+    res.send({ message: "Successfully registered account" });
+  });
 });
 
 app.listen(port, () => {

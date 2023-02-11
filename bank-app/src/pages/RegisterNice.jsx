@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -16,6 +16,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
   return (
@@ -38,6 +39,10 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function RegisterNice() {
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -66,7 +71,7 @@ export default function RegisterNice() {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error("Email Already Exists");
         }
         return response.json();
       })
@@ -75,12 +80,24 @@ export default function RegisterNice() {
           "Data was successfully sent to server and processed:",
           data
         );
+        if (data.message === "Email already exists") {
+          setErrorMessage(data.message);
+        } else {
+          // Clear error message and show success message
+          setErrorMessage(null);
+          setSuccessMessage(data.message);
+          // Pause for 1 sec to process success
+          setTimeout(() => {
+            navigate("/login-nice");
+          }, 1000);
+        }
       })
       .catch((error) => {
         console.error(
           "There was a problem sending the data to the server:",
           error
         );
+        setErrorMessage(error.message);
       });
   };
 
@@ -102,6 +119,12 @@ export default function RegisterNice() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
+          <div>
+            {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+            {successMessage && (
+              <div style={{ color: "green" }}>{successMessage}</div>
+            )}
+          </div>
           <Box
             component="form"
             noValidate

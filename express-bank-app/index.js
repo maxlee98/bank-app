@@ -29,24 +29,40 @@ app.get("/", (req, res) => {
 
 app.post("/register-account", (req, res) => {
   const data = req.body;
-  const sql = `INSERT INTO users (firstName, lastName, email, password, bankAccountType)
-               VALUES (?, ?, ?, ?, ?)`;
-  const values = [
-    data.firstName,
-    data.lastName,
-    data.email,
-    data.password,
-    data.bankAccountType,
-  ];
+  const emailExistsSql = `SELECT * FROM users WHERE email = ?`;
+  const values = [data.email];
 
-  con.query(sql, values, (err, result) => {
+  con.query(emailExistsSql, values, (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).send({ message: "Failed to register account" });
       return;
     }
-    console.log("Data was successfully written to the database");
-    res.send({ message: "Successfully registered account" });
+
+    if (result.length > 0) {
+      res.status(400).send({ message: "Email already exists" });
+      return;
+    }
+
+    const sql = `INSERT INTO users (firstName, lastName, email, password, bankAccountType)
+                 VALUES (?, ?, ?, ?, ?)`;
+    const insertValues = [
+      data.firstName,
+      data.lastName,
+      data.email,
+      data.password,
+      data.bankAccountType,
+    ];
+
+    con.query(sql, insertValues, (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send({ message: "Failed to register account" });
+        return;
+      }
+      console.log("Data was successfully written to the database");
+      res.send({ message: "Successfully registered account" });
+    });
   });
 });
 

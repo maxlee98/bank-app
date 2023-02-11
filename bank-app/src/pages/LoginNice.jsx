@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -36,15 +36,51 @@ const theme = createTheme();
 
 export default function LoginNice() {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
-
-    navigate("/home");
+    console.log([...data]);
+    // Send data to server
+    fetch("http://localhost:4000/api/authenticate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: data.get("email"),
+        password: data.get("password"),
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Username or password is incorrect.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Login was successful:", data);
+        if (
+          data.message ===
+          "Authentication failed. Invalid username or password."
+        ) {
+          setErrorMessage(data.message);
+        } else {
+          // Clear error message and show success message
+          setErrorMessage(null);
+          setSuccessMessage(data.message);
+          // Pause for 1 sec to process success
+          setTimeout(() => {
+            navigate("/home");
+          }, 1000);
+        }
+      })
+      .catch((error) => {
+        console.error("There was a problem with login:", error);
+        setErrorMessage(error.message);
+      });
   };
 
   return (
@@ -65,6 +101,12 @@ export default function LoginNice() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
+          <div>
+            {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+            {successMessage && (
+              <div style={{ color: "green" }}>{successMessage}</div>
+            )}
+          </div>
           <Box
             component="form"
             onSubmit={handleSubmit}

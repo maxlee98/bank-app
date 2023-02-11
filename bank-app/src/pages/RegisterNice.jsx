@@ -56,7 +56,7 @@ export default function RegisterNice() {
     });
 
     // Sending Data to the server
-    fetch("http://localhost:4000/register-account", {
+    fetch("http://localhost:4000/api/register-account", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

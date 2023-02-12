@@ -68,6 +68,9 @@ export default function LoginNice() {
         ) {
           setErrorMessage(data.message);
         } else {
+          // Storing the userId to use later to retrieve account info.
+          localStorage.setItem("userId", data.userId);
+
           // Clear error message and show success message
           setErrorMessage(null);
           setSuccessMessage(data.message);
@@ -152,7 +155,7 @@ export default function LoginNice() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="/register-nice" variant="body2">
+                <Link href="/register" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

@@ -55,7 +55,7 @@ export default function RegisterNice() {
       bankAccountType: data.get("bank-account-type"),
     });
 
-    // Sending Data to the server
+    // Sending Data to the server for registration of account
     fetch("http://localhost:4000/api/register-account", {
       method: "POST",
       headers: {
@@ -88,7 +88,7 @@ export default function RegisterNice() {
           setSuccessMessage(data.message);
           // Pause for 1 sec to process success
           setTimeout(() => {
-            navigate("/login-nice");
+            navigate("/login");
           }, 1000);
         }
       })
@@ -222,7 +222,7 @@ export default function RegisterNice() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/login-nice" variant="body2">
+                <Link href="/login" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>

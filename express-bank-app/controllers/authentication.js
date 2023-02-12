@@ -1,6 +1,7 @@
 // authentication.js
 const express = require("express");
 const router = express.Router();
+const account = require("./account");
 
 router.post("/api/register-account", (req, res) => {
   const data = req.body;
@@ -29,14 +30,29 @@ router.post("/api/register-account", (req, res) => {
       data.bankAccountType,
     ];
 
-    con.query(sql, insertValues, (err, result) => {
+    req.con.query(sql, insertValues, (err, result) => {
       if (err) {
         console.error(err);
-        res.status(500).send({ message: "Failed to register account" });
         return;
       }
       console.log("Data was successfully written to the database");
-      res.send({ message: "Successfully registered account" });
+
+      const userId = result.insertId;
+      const accountData = [userId, data.bankAccountType, 0];
+
+      const sql_acc = `INSERT INTO accounts (userId, bankAccountType, balance)
+      VALUES (?, ?, ?)`;
+
+      req.con.query(sql_acc, accountData, (err, result) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log("Account Type was successfully written to the database");
+        res.send({
+          message: `Successfully registered and created bankAccountType account`,
+        });
+      });
     });
   });
 });
@@ -47,6 +63,7 @@ router.post("/api/authenticate", (req, res) => {
   req.con.query(sql, function (err, result) {
     if (err) throw err;
     if (result.length > 0) {
+      req.session.userId = result[0].id;
       res
         .status(200)
         .send({ success: true, message: "Authentication successful!" });

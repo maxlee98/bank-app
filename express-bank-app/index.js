@@ -2,7 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
+const session = require("express-session");
+
+// Controller Modules
 const authentication = require("./controllers/authentication");
+const accounts = require("./controllers/account");
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -19,6 +23,14 @@ con.connect(function (err) {
 const app = express();
 const port = process.env.PORT || 4000;
 
+app.use(
+  session({
+    secret: "secret-key",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
@@ -34,6 +46,7 @@ app.use(function (req, res, next) {
 });
 
 app.use("/", authentication);
+app.use("/", accounts);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

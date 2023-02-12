@@ -64,9 +64,12 @@ router.post("/api/authenticate", (req, res) => {
     if (err) throw err;
     if (result.length > 0) {
       req.session.userId = result[0].id;
-      res
-        .status(200)
-        .send({ success: true, message: "Authentication successful!" });
+      res.status(200).send({
+        success: true,
+        message: "Authentication successful!",
+        userId: result[0].id,
+        firstName: result[0].firstName,
+      });
     } else {
       res.status(401).send({
         success: false,

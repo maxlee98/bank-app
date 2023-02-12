@@ -1,9 +1,9 @@
-// authentication.js
+// account.js
 const express = require("express");
 const router = express.Router();
 
-router.get("/api/get-account-information", (req, res) => {
-  const userId = req.session.userId;
+router.get("/api/get-account-information/:userId", (req, res) => {
+  const userId = req.params.userId;
   const sql = "SELECT * FROM accounts WHERE userId = ?";
   const values = [userId];
   req.con.query(sql, values, function (err, result) {
@@ -15,7 +15,11 @@ router.get("/api/get-account-information", (req, res) => {
     }
 
     if (result.length > 0) {
-      res.status(200).send({ account: result[0] });
+      res.send({
+        account: result[0].id,
+        bankAccountType: result[0].bankAccountType,
+        balance: result[0].balance,
+      });
     } else {
       res
         .status(404)

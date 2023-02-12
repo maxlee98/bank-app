@@ -1,4 +1,5 @@
-import React from "react";
+// Home.jsx
+import React, { useState, useEffect } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -8,19 +9,46 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
-  const [bankAccount, setBankAccount] = React.useState("");
-  const [amount, setAmount] = React.useState("");
+  const navigate = useNavigate();
+  const [bankAccount, setBankAccount] = useState("");
+  const [amount, setAmount] = useState("");
+  const [account, setAccount] = useState({});
+  const firstName = localStorage.getItem("firstName");
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      // Redirect the user to the login page if there is no valid session
+      navigate("/login");
+    } else {
+      fetch(`http://localhost:4000/api/get-account-information/${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setAccount(data.account);
+        })
+        .catch((error) => {
+          console.error(`Account Information Error: ${error}`);
+        });
+    }
+  });
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log(`Account : ${account}`);
     console.log("Bank Account: ", bankAccount);
     console.log("Amount: ", amount);
   };
 
   return (
     <div>
+      <h1>Welcome, {firstName}!</h1>
       <h1>Bank Account Table</h1>
       <TableContainer component={Paper}>
         <Table aria-label="bank account table">
@@ -34,10 +62,10 @@ export default function Home() {
           <TableBody>
             <TableRow>
               <TableCell component="th" scope="row">
-                1234567890
+                {100000 + account.id}
               </TableCell>
-              <TableCell align="right">Checking</TableCell>
-              <TableCell align="right">$1,000</TableCell>
+              <TableCell align="right">{account.bankAccountType}</TableCell>
+              <TableCell align="right">{account.balance}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -74,7 +102,7 @@ export default function Home() {
         <TextField
           label="Amount"
           placeholder="Amount"
-          value={amount}
+          value={0}
           onChange={(event) => setAmount(event.target.value)}
         />
         <Button type="submit">Send</Button>

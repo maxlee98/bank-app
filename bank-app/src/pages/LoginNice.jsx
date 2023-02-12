@@ -70,7 +70,7 @@ export default function LoginNice() {
         } else {
           // Storing the userId to use later to retrieve account info.
           localStorage.setItem("userId", data.userId);
-
+          localStorage.setItem("firstName", data.firstName);
           // Clear error message and show success message
           setErrorMessage(null);
           setSuccessMessage(data.message);

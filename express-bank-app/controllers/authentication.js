@@ -59,8 +59,9 @@ router.post("/api/register-account", (req, res) => {
 
 router.post("/api/authenticate", (req, res) => {
   const { email, password } = req.body;
-  const sql = `SELECT * FROM users WHERE email = "${email}" AND password = "${password}"`;
-  req.con.query(sql, function (err, result) {
+  const sql = `SELECT * FROM users WHERE email = ? AND password = ?`;
+  const values = [email, password];
+  req.con.query(sql, values, function (err, result) {
     if (err) throw err;
     if (result.length > 0) {
       req.session.userId = result[0].id;

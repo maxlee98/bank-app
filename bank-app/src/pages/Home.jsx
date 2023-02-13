@@ -31,7 +31,7 @@ export default function Home() {
       })
         .then((res) => res.json())
         .then((data) => {
-          setAccount(data.account);
+          setAccount(data);
         })
         .catch((error) => {
           console.error(`Account Information Error: ${error}`);
@@ -62,7 +62,7 @@ export default function Home() {
           <TableBody>
             <TableRow>
               <TableCell component="th" scope="row">
-                {100000 + account.id}
+                {100000 + account.account}
               </TableCell>
               <TableCell align="right">{account.bankAccountType}</TableCell>
               <TableCell align="right">{account.balance}</TableCell>

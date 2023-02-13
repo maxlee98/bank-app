@@ -10,10 +10,11 @@ import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Home() {
   const navigate = useNavigate();
-  const [bankAccount, setBankAccount] = useState("");
+  const [accountID, setAccountID] = useState("");
   const [amount, setAmount] = useState("");
   const [account, setAccount] = useState({});
   const firstName = localStorage.getItem("firstName");
@@ -41,9 +42,44 @@ export default function Home() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(`Account : ${account}`);
-    console.log("Bank Account: ", bankAccount);
-    console.log("Amount: ", amount);
+
+    console.log(
+      `Making a PUT request to http://localhost:4000/api/update-account/${accountID}`
+    );
+    console.log(`Amount: ${amount}`);
+
+    // axios
+    //   .put(`http://localhost:4000/api/update-account/${accountID}`, {
+    //     amount,
+    //   })
+    // .then((res) => {
+    //   console.log(`Response from server: ${res}`);
+    //   if (res.status === 200) {
+    //     console.log("Account updated successfully");
+    //   }
+    // })
+    // .catch((error) => {
+    //   console.error(`Update account error: ${error}`);
+    // });
+
+    fetch(`http://localhost:4000/api/update-account/${accountID}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        amount: amount,
+      }),
+    })
+      .then((res) => {
+        console.log(`Response from server: ${res}`);
+        if (res.status === 200) {
+          console.log("Account updated successfully");
+        }
+      })
+      .catch((error) => {
+        console.error(`Update account error: ${error}`);
+      });
   };
 
   return (
@@ -65,7 +101,7 @@ export default function Home() {
                 {100000 + account.account}
               </TableCell>
               <TableCell align="right">{account.bankAccountType}</TableCell>
-              <TableCell align="right">{account.balance}</TableCell>
+              <TableCell align="right">${account.balance}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -92,20 +128,35 @@ export default function Home() {
         </Table>
       </TableContainer>
       <h1>Transfer Money</h1>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}
+      >
         <TextField
-          label="Bank Account"
-          placeholder="Bank Account"
-          value={bankAccount}
-          onChange={(event) => setBankAccount(event.target.value)}
+          label="To Bank Account"
+          placeholder="To Bank Account"
+          value={accountID}
+          onChange={(event) => setAccountID(event.target.value)}
         />
-        <TextField
-          label="Amount"
-          placeholder="Amount"
-          value={0}
-          onChange={(event) => setAmount(event.target.value)}
-        />
-        <Button type="submit">Send</Button>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <p style={{ margin: "0 0 0 10px" }}>$</p>
+          <TextField
+            label="Amount"
+            placeholder="Amount"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+          />
+          <Button
+            type="submit"
+            style={{
+              backgroundColor: "#09aeae",
+              color: "white",
+              marginLeft: "5px",
+            }}
+          >
+            Send
+          </Button>
+        </div>
       </form>
     </div>
   );

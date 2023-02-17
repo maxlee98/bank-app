@@ -2,10 +2,11 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/api/get-account-transactions/:userId", (req, res) => {
-  const userId = req.params.userId;
-  const sql = "SELECT * FROM transactions WHERE debit = ? or credit = ?";
-  const values = [userId, userId];
+router.get("/api/get-account-transactions/:accountID", (req, res) => {
+  const accountID = req.params.accountID;
+  const sql =
+    "SELECT DATE_FORMAT(time_stamp, '%Y-%m-%d %H:%i:%s') AS time_stamp, debit, credit, amount FROM transactions WHERE debit = ? or credit = ?";
+  const values = [accountID, accountID];
   req.con.query(sql, values, function (err, result) {
     if (err) {
       console.error(err);
@@ -15,15 +16,11 @@ router.get("/api/get-account-transactions/:userId", (req, res) => {
     }
 
     if (result.length > 0) {
-      res.send({
-        account: result[0].id,
-        bankAccountType: result[0].bankAccountType,
-        balance: result[0].balance,
-      });
+      res.send(result);
     } else {
       res
         .status(404)
-        .send({ message: "No account information found for the given user." });
+        .send({ message: "No account transactions found for the given user." });
     }
   });
 });
@@ -31,7 +28,7 @@ router.get("/api/get-account-transactions/:userId", (req, res) => {
 router.post("/api/post-account-transaction", (req, res) => {
   const { debit, credit, amount } = req.body;
   const sql = `INSERT INTO transactions (debit, credit, amount, time_stamp)
-               VALUES (?, ?, ?, NOW())`;
+               VALUES (?, ?, ?, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))`;
   const values = [debit, credit, amount];
   req.con.query(sql, values, function (err, result) {
     if (err) {

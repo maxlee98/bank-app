@@ -17,6 +17,7 @@ export default function Home() {
   const [accountId, setAccountId] = useState("");
   const [amount, setAmount] = useState("");
   const [account, setAccount] = useState({});
+  const [transactions, setTransactions] = useState([]);
   const firstName = localStorage.getItem("firstName");
 
   useEffect(() => {
@@ -39,6 +40,13 @@ export default function Home() {
         })
         .catch((error) => {
           console.error(`Account Information Error: ${error}`);
+        });
+
+      const accountID = account.id;
+      axios
+        .get(`http://localhost:4000/api/get-account-transactions/${accountID}`)
+        .then((response) => {
+          setTransactions(response.data);
         });
     }
   });
@@ -147,7 +155,7 @@ export default function Home() {
                 {100000 + account.id}
               </TableCell>
               <TableCell align="right">{account.bankAccountType}</TableCell>
-              <TableCell align="right">${account.balance}</TableCell>
+              <TableCell align="right">${account.balance.toFixed(2)}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -163,13 +171,19 @@ export default function Home() {
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableCell component="th" scope="row">
-                01/01/2023
-              </TableCell>
-              <TableCell align="right">Deposit</TableCell>
-              <TableCell align="right">$100</TableCell>
-            </TableRow>
+            {transactions.map((transaction) => (
+              <TableRow key={transaction.transaction_id}>
+                <TableCell component="th" scope="row">
+                  {transaction.time_stamp}
+                </TableCell>
+                <TableCell align="right">
+                  {transaction.debit === account.id ? "Debit" : "Credit"}
+                </TableCell>
+                <TableCell align="right">
+                  ${transaction.amount.toFixed(2)}
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

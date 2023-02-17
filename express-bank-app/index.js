@@ -7,6 +7,7 @@ const session = require("express-session");
 // Controller Modules
 const authentication = require("./controllers/authentication");
 const account = require("./controllers/account");
+const transaction = require("./controllers/transaction");
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -46,6 +47,7 @@ app.use(function (req, res, next) {
 
 app.use("/", authentication);
 app.use("/", account);
+app.use("/", transaction);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

@@ -14,7 +14,7 @@ import axios from "axios";
 
 export default function Home() {
   const navigate = useNavigate();
-  const [accountID, setAccountID] = useState("");
+  const [accountId, setAccountId] = useState("");
   const [amount, setAmount] = useState("");
   const [account, setAccount] = useState({});
   const firstName = localStorage.getItem("firstName");
@@ -25,11 +25,14 @@ export default function Home() {
       // Redirect the user to the login page if there is no valid session
       navigate("/login");
     } else {
-      fetch(`http://localhost:4000/api/get-account-information/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+      fetch(
+        `http://localhost:4000/api/get-account-information-user/${userId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
         .then((res) => res.json())
         .then((data) => {
           setAccount(data);
@@ -42,43 +45,86 @@ export default function Home() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const debitAccount = account.id;
+    const creditAccount = accountId;
+    console.log(`Credit Account = ${creditAccount}`);
+    if (debitAccount === accountId) {
+      alert("Credit Account cannot be your account!");
+      return;
+    }
 
     console.log(
-      `Making a PUT request to http://localhost:4000/api/update-account/${accountID}`
+      `Debit Account: ${debitAccount}, Credit Account :${creditAccount}`
     );
-    console.log(`Amount: ${amount}`);
-
-    // axios
-    //   .put(`http://localhost:4000/api/update-account/${accountID}`, {
-    //     amount,
-    //   })
-    // .then((res) => {
-    //   console.log(`Response from server: ${res}`);
-    //   if (res.status === 200) {
-    //     console.log("Account updated successfully");
-    //   }
-    // })
-    // .catch((error) => {
-    //   console.error(`Update account error: ${error}`);
-    // });
-
-    fetch(`http://localhost:4000/api/update-account/${accountID}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        amount: amount,
-      }),
-    })
-      .then((res) => {
-        console.log(`Response from server: ${res}`);
-        if (res.status === 200) {
-          console.log("Account updated successfully");
+    axios
+      .get(
+        `http://localhost:4000/api/get-account-information-account/${accountId}`
+      )
+      .then((response) => {
+        console.log(response);
+        const creditAccountData = response.data;
+        if (creditAccountData) {
+          const debitAmount = amount;
+          console.log(
+            `DebitAccount : ${debitAccount}, Debit Amount:${debitAmount}`
+          );
+          axios
+            .put(
+              `http://localhost:4000/api/update-account-debit/${debitAccount}`,
+              {
+                debitAmount,
+              }
+            )
+            .then((res) => {
+              if (res.status === 200) {
+                console.log("Debit Account updated successfully");
+                const creditAmount = amount;
+                console.log(
+                  `CreditAccount : ${creditAccount}, Credit Amount:${creditAmount}`
+                );
+                axios
+                  .put(
+                    `http://localhost:4000/api/update-account-credit/${creditAccount}`,
+                    {
+                      creditAmount,
+                    }
+                  )
+                  .then((res) => {
+                    if (res.status === 200) {
+                      console.log("Credit Account updated successfully");
+                      axios
+                        .post(
+                          `http://localhost:4000/api/post-account-transaction`,
+                          {
+                            debit: debitAccount,
+                            credit: creditAccount,
+                            amount: amount,
+                          }
+                        )
+                        .then((res) => {
+                          if (res.status === 200) {
+                            console.log("Transaction created successfully");
+                          }
+                        })
+                        .catch((error) => {
+                          console.error(
+                            `Transaction posting has encountered an error: ${error}`
+                          );
+                        });
+                    }
+                  })
+                  .catch((error) => {
+                    console.error(`Update credit account error: ${error}`);
+                  });
+              }
+            })
+            .catch((error) => {
+              console.error(`Update debit account error: ${error}`);
+            });
         }
       })
       .catch((error) => {
-        console.error(`Update account error: ${error}`);
+        console.error(`Search debit account error: ${error}`);
       });
   };
 
@@ -98,7 +144,7 @@ export default function Home() {
           <TableBody>
             <TableRow>
               <TableCell component="th" scope="row">
-                {100000 + account.account}
+                {100000 + account.id}
               </TableCell>
               <TableCell align="right">{account.bankAccountType}</TableCell>
               <TableCell align="right">${account.balance}</TableCell>
@@ -135,8 +181,8 @@ export default function Home() {
         <TextField
           label="To Bank Account"
           placeholder="To Bank Account"
-          value={accountID}
-          onChange={(event) => setAccountID(event.target.value)}
+          value={accountId}
+          onChange={(event) => setAccountId(event.target.value)}
         />
         <div style={{ display: "flex", alignItems: "center" }}>
           <p style={{ margin: "0 0 0 10px" }}>$</p>

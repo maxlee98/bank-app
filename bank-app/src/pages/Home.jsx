@@ -155,7 +155,7 @@ export default function Home() {
                 {100000 + account.id}
               </TableCell>
               <TableCell align="right">{account.bankAccountType}</TableCell>
-              <TableCell align="right">${account.balance.toFixed(2)}</TableCell>
+              <TableCell align="right">${account.balance}</TableCell>
             </TableRow>
           </TableBody>
         </Table>

@@ -102,4 +102,20 @@ router.put("/api/update-account-debit/:debitAccount", (req, res) => {
   });
 });
 
+router.delete("/api/delete-account/:userId", (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const sql =
+    "DELETE a, u FROM accounts a JOIN users u ON  a.userId = u.id WHERE a.userId = ?";
+  const values = [userId];
+  req.con.query(sql, values, function (err, result) {
+    if (err) {
+      console.error(err);
+      res.status(500).send({ message: "Failed to delete the account" });
+      return;
+    }
+    console.log("Bank Account has been successfully deleted from the database");
+    res.send({ message: "Bank Account has been deleted successfully" });
+  });
+});
+
 module.exports = router;

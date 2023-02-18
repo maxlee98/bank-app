@@ -9,6 +9,11 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -18,6 +23,7 @@ export default function Home() {
   const [amount, setAmount] = useState("");
   const [account, setAccount] = useState({});
   const [transactions, setTransactions] = useState([]);
+  const [openDelete, setOpenDelete] = useState(false);
   const firstName = localStorage.getItem("firstName");
 
   useEffect(() => {
@@ -50,6 +56,34 @@ export default function Home() {
         });
     }
   });
+
+  const handleClickDeleteOpen = () => {
+    setOpenDelete(true);
+  };
+
+  const handleDeleteClose = () => {
+    setOpenDelete(false);
+  };
+
+  const handleDeleteButton = () => {
+    // code to delete the bank account
+    const userId = localStorage.getItem("userId");
+    axios
+      .delete(`http://localhost:4000/api/delete-account/${userId}`)
+      .then((res) => {
+        if (res.status === 200) {
+          console.log("Account and user deleted successfully");
+          handleDeleteClose();
+          alert("Account Deleted!");
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+        }
+      })
+      .catch((error) => {
+        console.error(`Error deleting account and user: ${error}`);
+      });
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -218,6 +252,42 @@ export default function Home() {
           </Button>
         </div>
       </form>
+      {/* Handling Delete */}
+      <Button
+        style={{
+          position: "absolute",
+          top: "5px",
+          right: "5px",
+          backgroundColor: "red",
+          color: "white",
+        }}
+        onClick={handleClickDeleteOpen}
+      >
+        Delete
+      </Button>
+      <Dialog
+        open={openDelete}
+        onClose={handleDeleteClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Are you sure you would like to delete this bank account?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteButton} color="primary" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

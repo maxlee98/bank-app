@@ -49,6 +49,7 @@ export default function Home() {
         });
 
       const accountID = account.id;
+      localStorage.setItem("accountID", account.id);
       axios
         .get(`http://localhost:4000/api/get-account-transactions/${accountID}`)
         .then((response) => {

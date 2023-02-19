@@ -50,5 +50,5 @@ app.use("/", account);
 app.use("/", transaction);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Express Bank app listening on port ${port}`);
 });

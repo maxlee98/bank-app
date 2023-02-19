@@ -43,4 +43,35 @@ router.post("/api/post-account-transaction", (req, res) => {
   });
 });
 
+router.get("/api/monthly-transaction-summary/:accountID", (req, res) => {
+  const accountID = req.params.accountID;
+  const sql = `
+    SELECT
+    DATE_FORMAT(time_stamp, '%Y-%m') AS month,
+    SUM(amount) AS total_amount
+    FROM transactions
+    WHERE debit = ?
+    GROUP BY DATE_FORMAT(time_stamp, '%Y-%m')
+    ORDER BY month;
+    `;
+
+  const values = [accountID];
+  req.con.query(sql, values, function (err, result) {
+    if (err) {
+      console.error(err);
+      res.status(500).send({
+        message: "Failed to retrieve account monthly transaction information",
+      });
+    }
+
+    if (result.length > 0) {
+      res.send(result);
+    } else {
+      res
+        .status(404)
+        .send({ message: "No account transactions found for the given user." });
+    }
+  });
+});
+
 module.exports = router;
